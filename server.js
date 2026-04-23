@@ -23,15 +23,25 @@
 
     const app = express();
 
-    const allowedOrigins = [
-        process.env.FRONTEND_URL,
+    const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '');
+    const configuredOrigins = String(process.env.FRONTEND_URL || '')
+        .split(',')
+        .map((origin) => normalizeOrigin(origin))
+        .filter(Boolean);
+    const allowedOrigins = new Set([
+        ...configuredOrigins,
         'http://localhost:3000',
         'http://localhost:5173',
-    ].filter(Boolean);
+    ].map((origin) => normalizeOrigin(origin)));
 
     app.use(cors({
         origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
+            if (!origin) {
+                return callback(null, true);
+            }
+
+            const normalizedRequestOrigin = normalizeOrigin(origin);
+            if (allowedOrigins.has(normalizedRequestOrigin)) {
                 return callback(null, true);
             }
 
