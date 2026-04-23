@@ -81,13 +81,46 @@
         await user.save();
         console.log('Reset token generated for:', { email, resetToken });
 
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
-        const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Password Reset Request',
-        text: `You requested a password reset. Click this link to reset your password: ${resetUrl}\n\nThis link expires in 1 hour. If you did not request this, ignore this email.`,
-        };
+                const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
+                const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: 'StockMe | Password Reset Request',
+                text: `StockMe Password Reset\n\nYou requested a password reset. Click this link to reset your password: ${resetUrl}\n\nThis link expires in 1 hour. If you did not request this, ignore this email.`,
+                html: `
+                    <div style="margin:0;padding:24px;background:#f4f7fb;font-family:Arial,sans-serif;color:#102a43;">
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 8px 28px rgba(16,42,67,0.08);">
+                            <tr>
+                                <td style="padding:22px 28px;background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#ffffff;">
+                                    <div style="font-size:28px;font-weight:700;letter-spacing:0.6px;">StockMe</div>
+                                    <div style="margin-top:6px;font-size:13px;opacity:0.9;">Smart Stock Management</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:28px;">
+                                    <h2 style="margin:0 0 14px 0;font-size:22px;color:#0f172a;">Reset Your Password</h2>
+                                    <p style="margin:0 0 14px 0;line-height:1.6;font-size:15px;color:#334e68;">
+                                        We received a request to reset your StockMe account password.
+                                    </p>
+                                    <p style="margin:0 0 24px 0;line-height:1.6;font-size:15px;color:#334e68;">
+                                        Click the button below to choose a new password. This link expires in <strong>1 hour</strong>.
+                                    </p>
+                                    <a href="${resetUrl}" style="display:inline-block;padding:12px 22px;background:#1d4ed8;color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;">Reset Password</a>
+                                    <p style="margin:24px 0 8px 0;line-height:1.6;font-size:13px;color:#486581;word-break:break-all;">
+                                        If the button does not work, copy and paste this link into your browser:<br />
+                                        <a href="${resetUrl}" style="color:#1d4ed8;">${resetUrl}</a>
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:16px 28px;background:#f8fafc;color:#627d98;font-size:12px;line-height:1.5;border-top:1px solid #e6edf5;">
+                                    If you did not request this password reset, you can safely ignore this email.
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                `,
+                };
 
         await transporter.sendMail(mailOptions);
         console.log('Password reset email sent to:', email);
