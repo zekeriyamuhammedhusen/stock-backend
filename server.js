@@ -50,6 +50,15 @@
     }));
     app.use(express.json());
 
+    // API health check
+    app.get('/', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Stock Management System API is running!',
+        status: 'OK'
+    });
+    });
+
     mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/your_db')
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.error('MongoDB connection error:', err));
