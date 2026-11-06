@@ -1,7 +1,7 @@
     require('dotenv').config();
 
     const express = require('express');
-    const mongoose = require('mongoose');
+    const connectDB = require('./config/db');
     const cors = require('cors');
     const authRoutes = require('./routes/authRoutes');
     const userRoutes = require('./routes/userRoutes');
@@ -49,6 +49,12 @@
         },
     }));
     app.use(express.json());
+    app.use((req, res, next) => {
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Request body:', req.body);
+    next();
+});
+    app.use(express.urlencoded({ extended: true }));
 
     // API health check
     app.get('/', (req, res) => {
@@ -59,10 +65,19 @@
     });
     });
 
-    mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/your_db')
-    .then(() => console.log('MongoDB connected'))
-    .catch((err) => console.error('MongoDB connection error:', err));
+   // Ensure MongoDB is connected before handling API requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error('Database connection failed:', error);
 
+        res.status(503).json({
+            message: 'Database connection unavailable'
+        });
+    }
+});
     app.use('/api/auth', authRoutes);
     app.use('/api/users', userRoutes);
     app.use('/api/roles', roleRoutes);
